@@ -7,62 +7,57 @@ User will input measurements and the program will tell them their size
 based on our size chart.
 """
 
-def size_chart_kids(chest):
-    if 26 <= chest < 28:
-        return("S")
-    elif 28 <= chest < 30:
-        return("M")
-    elif 30 <= chest < 32:
-        return("L")
-    elif 32 <= chest < 34:
-        return("XL")
-    elif 34 <= chest < 36:
-        return("XXL")
-    else:
-        return("not available")
+def size_chart(category, chest_size):
+    step = 2
+    if category == "M":
+        step = 3
 
-def size_chart_womens(chest):
-    if 30 <= chest < 32:
-        return("S")
-    elif 32 <= chest < 34:
-        return("M")
-    elif 34 <= chest < 36:
-        return("L")
-    elif 36 <= chest < 38:
-        return("XL")
-    elif 38 <= chest < 40:
-        return("XXL")
-    elif 40 <= chest < 42:
-        return("XXXL")
-    else:
-        return("not available")
+    start = 36
+    if category == "W":
+        start = 42
+    elif category == "M":
+        start = 53
 
-
-def size_chart_men(chest):
-    if 34 <= chest < 37:
-        return("S")
-    elif 37 <= chest < 40:
-        return("M")
-    elif 40 <= chest < 43:
-        return("L")
-    elif 43 <= chest < 47:
-        return("XL")
-    elif 47 <= chest < 50:
-        return("XXL")
-    elif 50 <= chest < 53:
-        return("XXXL")
-    else:
-        return("not available")
+    if(chest_size > start):
+        return "Not available"
+    if (category == "W" or category == "M"):
+        if chest_size >= (start- step):
+            return "XXXL"
+        start = start - step
+    if((chest_size >= (start - step))):
+        return "XXL"
+    start = start- step
+    if (chest_size >= (start-step)):
+        return "XL"
+    start = start- step
+    if (chest_size >= (start-step)):
+        return "L"
+    start = start - step
+    if (chest_size >= (start-step)):
+        return "M"
+    start = start - step
+    if (chest_size >= (start-step)):
+        return "S"
+    start = start - step
+    if (chest_size >= (start-step)):
+        return "Not available"
 
 
 
 def main():
-    chest = float(input("Chest measurement in inches: "))
-    print("Kids size: ", size_chart_kids(chest))
-    print("Womens size: ", size_chart_womens(chest))
-    print("Mens size: ",size_chart_men(chest))
-    print("Sorry, we dont carry your size")
+    chest_size = float(input("Chest measurement in inches: "))
+    size_chart("K", chest_size)
+    size_chart("W", chest_size)
+    size_chart("M", chest_size)
 
+    if size_chart("K",chest_size)== "Not available" and \
+        size_chart("W", chest_size) == "Not available" and \
+        size_chart("M",chest_size) == "Not available":
+        print("Sorry, we dont carry your size")
+    else:
+        print("Kids size: ", size_chart("K", chest_size))
+        print("Womens size: ", size_chart("W", chest_size))
+        print("Mens size: ",size_chart("M",chest_size))
 
 if __name__ == "__main__":
     main()
