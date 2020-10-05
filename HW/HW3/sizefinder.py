@@ -8,6 +8,16 @@ based on our size chart.
 """
 
 def size_chart(category, chest_size):
+    """ Function -- size_chart
+            Identifies which size the user wears
+        Parameters:
+            category -- The t-shirt company has three sizes Kids Womens and Mens
+            chest_size -- The chest size the user inputs in inches
+        Returns:
+            Size of t-shirt. If chest size is smaller, or larger then the sizes
+            we carry then it will return "Not available"
+
+    """
     step = 2
     if category == "M":
         step = 3
@@ -42,22 +52,43 @@ def size_chart(category, chest_size):
     if (chest_size >= (start-step)):
         return "Not available"
 
+def results(kids, women, men, chest_size):
+    """Function -- results
+           Decides if the comapany has the sizes available
+       Parameters:
+           kids -- kids chest_size
+           women -- womens chest_size
+           men -- mens chest_size
+           chest_size -- The chest size the user inputs in inches
+       Returns:
+           False if the company does not carry size in kids, womens and mens
+           else returns True
+    """
+    if kids == "Not available" and women == "Not available" and men == "Not available":
+        print("False")
+        return False
+
+    else:
+       # print("True")
+        return True
+
 
 
 def main():
     chest_size = float(input("Chest measurement in inches: "))
-    size_chart("K", chest_size)
-    size_chart("W", chest_size)
-    size_chart("M", chest_size)
+    kids = size_chart("K",chest_size)
+    women = size_chart("W",chest_size)
+    men = size_chart("M",chest_size)
+    results(kids, women, men, chest_size)
 
-    if size_chart("K",chest_size)== "Not available" and \
-        size_chart("W", chest_size) == "Not available" and \
-        size_chart("M",chest_size) == "Not available":
+    if results(kids, women, men, chest_size) == False:
         print("Sorry, we dont carry your size")
     else:
         print("Kids size: ", size_chart("K", chest_size))
         print("Womens size: ", size_chart("W", chest_size))
         print("Mens size: ",size_chart("M",chest_size))
 
+
 if __name__ == "__main__":
     main()
+
