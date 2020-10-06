@@ -4,6 +4,8 @@ CS5001 Fall 2020
 Problem 2
 This program calculates business trip driving expenses
 """
+
+
 def calculate_mileage(start, end):
     """Function -- calculate_mileage
            Calculates miles driven using the start and end odometer values.
@@ -24,10 +26,11 @@ def calculate_mileage(start, end):
         mileage = end - start
         return mileage
 
+
 def get_reimbursement_amount(mileage):
     """Function -- get_reimbursement_amount
            Calculates the amount in dollars that the employee should be
-           reimbursed based on their milege and their mileage and the
+           reimbursed based on their mileage and their mileage and the
            standard rate per mile. The standard rate for 2020 is
            57.5 cents per mile.
        Parameters:
@@ -38,8 +41,8 @@ def get_reimbursement_amount(mileage):
     """
 
     amount = (mileage * 57.5) / 100
-    reimbursement_amount = '{:.2f}'.format(amount)
-    return reimbursement_amount
+    return round(amount, 2)
+
 
 def get_actual_mileage_rate(mpg, fuel_price):
     """Function -- get_actual_mileage_rate
@@ -53,64 +56,66 @@ def get_actual_mileage_rate(mpg, fuel_price):
             The actual cost per miles in dollars, a float rounded to 4 decimal
             places. If supplied arguemnts are invalid, returns 0.0
       """
-
+    mpg = float(mpg)
     if mpg <= 0 or fuel_price <= 0:
         return 0.0
     else:
-        cost_per_miles = fuel_price * mpg
-        return
+        cost_per_miles = fuel_price / mpg
+        return round(cost_per_miles, 4)
 
-def get_actual_trip_cost(start, end, mpg):
+
+def get_actual_trip_cost(start, end, mpg, fuel_price):
     """Function -- get_actual_trip_cost
-           Calculates the cost of a trip in dollars based on the miles driven, the
-           MPG of the car, and the fuel price per gallon.
+           Calculates the cost of a trip in dollars based on the miles driven,
+           the MPG of the car, and the fuel price per gallon.
        Parameters:
            start -- The odometer reading at the start of the trip. Expecting a
                     number greater than 0.
-            end -- The odometer reading at the end of the trip. Expecting a number
-                   greater than 0 and greater than the start value.
+            end -- The odometer reading at the end of the trip. Expecting
+                   number greater than 0 and greater than the start value.
             mpg -- The car's miles per gallon (MPG), an integer greater than 0.
             fuel_price -- The fuel price per gallon, a non-negative float.
        Returns:
            The cost of the drive in dollars, a float rounded to 2 decimal
            place. If any of the supplied arguements are invalid, returns 0.0
     """
-    if mpg <= 0 or fuel_per_gallon <= 0:
+
+    if mpg <= 0 or fuel_price <= 0 or end <= start:
         return 0.0
     else:
-        mileage = calculate_mileage(start,end)
-        t_c = (fuel_per_gallon / mpg) *10
-        cost = '{:.2f}'.format(t_c)
-        return cost
-def main():
-    pass
+        mileage = calculate_mileage(start, end)
+        t_c = (fuel_price / mpg) * mileage
+        return round(t_c, 2)
 
-if __name__ == "__main__":
-    print("""MILEAGE REIMBURSEMENT CALCULATOR
-    Options:
-    1 - Calculate reimbursement amount from odemoter readings
-    2 - Calculate reimbursement amount from miles traveled
-    3 - Calculate the actual cost of your trip
-    """)
+
+def main():
+
+    print("MILEAGE REIMBURSEMENT CALCULATOR")
+    print("Options:")
+    print("1 - Calculate reimbursement amount from odometer readings")
+    print("2 - Calculate reimbursement amount from miles traveled")
+    print("3 - Calculate the actual cost of your trip")
     user_input = int(input("Enter your choice (1, 2, or 3): "))
     if user_input == 1:
-
         start = int(input("Enter your starting odometer reading: "))
         end = int(input("Enter your ending odometer reading: "))
-        mileage = calculate_mileage(start,end)
-        print("You will be reimbursed $",get_reimbursement_amount(mileage))
+        mileage = calculate_mileage(start, end)
+        print("You will be reimbursed $" +
+              str(get_reimbursement_amount(mileage)))
     elif user_input == 2:
         miles_traveled = int(input("Enter the number of miles traveled: "))
-
-        print("You will be reimbursed $",get_reimbursement_amount(miles_traveled))
+        print("You will be reimbursed $"
+              + str(get_reimbursement_amount(miles_traveled)))
     elif user_input == 3:
         start = int(input("Enter your starting odometer reading: "))
         end = int(input("Enter your ending odometer reading: "))
         mpg = int(input("Enter your car's MPG: "))
-        fuel_per_gallon = float(input("Enter the fuel price per gallon: "))
-        get_actual_trip_cost(start,end,mpg)
-        print("Your trip cost $",get_actual_trip_cost(start,end, mpg))
+        fuel_price = float(input("Enter the fuel price per gallon: "))
+        print("Your trip cost $" +
+              str(get_actual_trip_cost(start, end, mpg, fuel_price)))
     else:
         print("Not a valid choice")
 
+
+if __name__ == "__main__":
     main()

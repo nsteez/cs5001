@@ -7,11 +7,13 @@ User will input measurements and the program will tell them their size
 based on our size chart.
 """
 
+
 def size_chart(category, chest_size):
     """ Function -- size_chart
             Identifies which size the user wears
         Parameters:
-            category -- The t-shirt company has three sizes Kids Womens and Mens
+            category -- The t-shirt company has three sizes Kids Womens
+                        and Mens
             chest_size -- The chest size the user inputs in inches
         Returns:
             Size of t-shirt. If chest size is smaller, or larger then the sizes
@@ -28,67 +30,61 @@ def size_chart(category, chest_size):
     elif category == "M":
         start = 53
 
-    if(chest_size > start):
-        return "Not available"
+    if(chest_size >= start):
+        return "not available"
     if (category == "W" or category == "M"):
-        if chest_size >= (start- step):
+        if chest_size >= (start - step):
             return "XXXL"
         start = start - step
     if((chest_size >= (start - step))):
         return "XXL"
-    start = start- step
-    if (chest_size >= (start-step)):
+    start = start - step
+    if (chest_size >= (start - step)):
         return "XL"
-    start = start- step
-    if (chest_size >= (start-step)):
+    start = start - step
+    if (chest_size >= (start - step)):
         return "L"
     start = start - step
-    if (chest_size >= (start-step)):
+    if (chest_size >= (start - step)):
         return "M"
     start = start - step
-    if (chest_size >= (start-step)):
+    if (chest_size >= (start - step)):
         return "S"
-    start = start - step
-    if (chest_size >= (start-step)):
-        return "Not available"
+    return "not available"
 
-def results(kids, women, men, chest_size):
+
+def results(kids, women, men):
     """Function -- results
            Decides if the comapany has the sizes available
        Parameters:
-           kids -- kids chest_size
-           women -- womens chest_size
-           men -- mens chest_size
-           chest_size -- The chest size the user inputs in inches
+           kids -- kids t-shirt size or not available string
+           women -- womens t-shirt size or not available string
+           men -- mens t-shirt size or not available string
        Returns:
            False if the company does not carry size in kids, womens and mens
            else returns True
     """
-    if kids == "Not available" and women == "Not available" and men == "Not available":
-        print("False")
+    if kids == "not available" and women == "not available" \
+       and men == "not available":
         return False
-
     else:
-       # print("True")
         return True
-
 
 
 def main():
     chest_size = float(input("Chest measurement in inches: "))
-    kids = size_chart("K",chest_size)
-    women = size_chart("W",chest_size)
-    men = size_chart("M",chest_size)
-    results(kids, women, men, chest_size)
+    kids = size_chart("K", chest_size)
+    women = size_chart("W", chest_size)
+    men = size_chart("M", chest_size)
 
-    if results(kids, women, men, chest_size) == False:
-        print("Sorry, we dont carry your size")
+    if results(kids, women, men) is False:
+        print("Sorry, we don't carry your size")
     else:
-        print("Kids size: ", size_chart("K", chest_size))
-        print("Womens size: ", size_chart("W", chest_size))
-        print("Mens size: ",size_chart("M",chest_size))
+        print("Your size choices:")
+        print("Kids size: " + kids)
+        print("Womens size: " + women)
+        print("Mens size: " + men)
 
 
 if __name__ == "__main__":
     main()
-
