@@ -10,4 +10,3 @@ def test_():
 
 def test_2():
     assert(is_palindrome("a") is False)
-    #assert(() == )
