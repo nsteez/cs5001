@@ -21,24 +21,31 @@ def secure_password(password):
        contains_digit = any(i.isdigit() for i in password)
        print(contains_digit)
        # 4. at least 1 of the following chars($,#,@,!)
+
+
 def valid_special_chars(password):
+    permitted_chars = ['$', '#','@','!']
+    used_chars = []
+    #contains_permitted_chars = True for i in password if i in permitted_chars]
+    for i in password:
+        if i in permitted_chars:
+            used_chars.append(i)
+    if len(used_chars)==0:
+        return False
+    else:
+        return True
 
-        permitted_chars = ['$', '#','@','!']
-
-       #contains_permitted_chars = True for i in password if i in permitted_chars]
-        for i in password:
-            if i in permitted_chars:
-                print("True")
-            else:
-                print("False")
-
+    #return (used_chars)
         #print(contains_permitted_chars)
     # It should not contain other special chars then($, #,@,!)
 
+#print(valid_special_chars(password))
 
 
 def main():
+
     password = input("Enter password: ")
+
     print(secure_password(password))
     print(valid_special_chars(password))
 
