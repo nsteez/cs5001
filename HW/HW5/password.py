@@ -2,87 +2,75 @@
 Netti Welsh
 Fall 2020 CS5001
 Problem 2: Password
-This program checks that a password is valid by taking a string
-checking for length of characters. Then checking for three of the following
-at least one number, one lowercase, one uppercase or one special character
 """
 
-
 def secure_password(password):
-    ''' Function -- secure_password
-                   Checks for password validity
-        Paramters: pssword -- takes string input
-        Returns -- True -- if length of password is between 9 and 12 chars
-                   and contains any three of the following at least
-                   one uppercase, at least one lowercase, at least
-                   one special char.
-                   False -- requirements not met
-    '''
     types = 0
-    valid_length = len(password) >= 9 and len(password) <= 12
+    # no main() for this problem
+    # must be between 9 and 12 chars long
+    valid_length = len(password) >= 9 and len(password) <=12
+    # and must meet at least 3 req
+       # 1. at least one lowercase
     contains_lower = any(i.islower() for i in password)
+       #print(contains_lower)
+       # 2. at least one uppercase
     contains_upper = any(i.isupper() for i in password)
+       #print(contains_upper)
+       # 3. at leat one digit (0-9)
     contains_digit = any(i.isdigit() for i in password)
-    if valid_length is False:
+       #print(contains_digit)
+       # 4. at least 1 of the following chars($,#,@,!)
+    if valid_length == False:
         return False
     else:
-        if invalid_special_chars(password) is True:
-            return False
-        if contains_lower is True:
-            types += 1
-        if contains_upper is True:
-            types += 1
-        if contains_digit is True:
-            types += 1
-        if valid_special_chars(password) is True:
-            types += 1
+        if contains_lower == True:
+            types+= 1
+            print(types)
+        if contains_upper == True:
+            types+=1
+            print(types)
+        if contains_digit == True:
+            types+=1
+            print(types)
+        if valid_special_chars(password) == True:
+            types+=1
+            print(types)
+
         return True if types >= 3 else False
+        #if types >=3:
+        #    return True
+         #   else:
+            #    return False
 
 
-def invalid_special_chars(password):
-    '''Function -- invalid_special_chars
-        This function returns True if password contains an unallowed special
-        char
-    Parameters:
-        password -- string input
-    Returns:
-        True - if password contains an invalid char, doesnt contain a
-        lowercase, uppercase or digit
-        False -- otherwise
-    '''
-    permitted_chars = ['$', '#', '@', '!']
-    for i in password:
-        if not (i in permitted_chars or i.islower() or i.isupper()
-                or i.isdigit()):
-            return True
-    return False
-
+def special_characters_check(password):
+    pass
 
 def valid_special_chars(password):
-    '''Function -- valid_special_chars
-        This function checks for valid characters by iterating through
-        each char in the password and appending them to a used_char list
-    Parameters:
-        password -- string input
-    Returns:
-        True - if password contains an valid char,
-        False -- otherwise
-    '''
-    permitted_chars = ['$', '#', '@', '!']
+    permitted_chars = ['$', '#','@','!']
     used_chars = []
+    #contains_permitted_chars = True for i in password if i in permitted_chars]
     for i in password:
         if i in permitted_chars:
             used_chars.append(i)
-    if len(used_chars) == 0:
+    if len(used_chars)==0:
         return False
     else:
         return True
 
+    #return (used_chars)
+        #print(contains_permitted_chars)
+    # It should not contain other special chars then($, #,@,!)
+
+#print(valid_special_chars(password))
+
 
 def main():
-    password = input("Enter password: ")
-    print(secure_password(password))
 
+    password = input("Enter password: ")
+
+    print(secure_password(password))
+    #print(valid_special_chars(password))
 
 if __name__ == "__main__":
     main()
