@@ -18,7 +18,7 @@ def calculate_mileage(start, end):
            The miles driven, a number. If either parameter is invalid (e.g.
             either parameter is negative or end is less than start), returns 0.
     """
-    if start <= 0 or end <= 0:
+    if start < 0 or end <= 0:
         return 0
     elif end < start:
         return 0
@@ -39,8 +39,8 @@ def get_reimbursement_amount(mileage):
            The amount the employee should be reimbursed in dollars, a float
            round to 2 decimal places.
     """
-
-    amount = (mileage * 57.5) / 100
+    standard_rate = 0.575
+    amount = mileage * standard_rate
     return round(amount, 2)
 
 
@@ -96,23 +96,25 @@ def main():
     print("2 - Calculate reimbursement amount from miles traveled")
     print("3 - Calculate the actual cost of your trip")
     user_input = int(input("Enter your choice (1, 2, or 3): "))
-    if user_input == 1:
+
+    r_prompt = "You will be reimbursed $"
+    if user_input == 1 or user_input == 3:
         start = int(input("Enter your starting odometer reading: "))
         end = int(input("Enter your ending odometer reading: "))
-        mileage = calculate_mileage(start, end)
-        print("You will be reimbursed $" +
-              str(get_reimbursement_amount(mileage)))
+        if user_input == 3:
+            mpg = int(input("Enter your car's MPG: "))
+            fuel_price = float(input("Enter the fuel price per gallon: "))
+            print("Your trip cost $" +
+                  str(get_actual_trip_cost(start, end, mpg, fuel_price)))
+        if user_input == 1:
+            mileage = calculate_mileage(start, end)
+            print(r_prompt +
+                  str(get_reimbursement_amount(mileage)))
     elif user_input == 2:
         miles_traveled = int(input("Enter the number of miles traveled: "))
-        print("You will be reimbursed $"
-              + str(get_reimbursement_amount(miles_traveled)))
-    elif user_input == 3:
-        start = int(input("Enter your starting odometer reading: "))
-        end = int(input("Enter your ending odometer reading: "))
-        mpg = int(input("Enter your car's MPG: "))
-        fuel_price = float(input("Enter the fuel price per gallon: "))
-        print("Your trip cost $" +
-              str(get_actual_trip_cost(start, end, mpg, fuel_price)))
+        print(r_prompt +
+              str(get_reimbursement_amount(miles_traveled)))
+
     else:
         print("Not a valid choice")
 
