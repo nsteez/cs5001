@@ -5,6 +5,7 @@ from expenses import get_actual_mileage_rate,\
 def test_():
     assert(calculate_mileage(0, 0) == 0)
     assert(calculate_mileage(10, 5) == 0)
+    assert(calculate_mileage(-10, 5) == 0)
     assert(calculate_mileage(1000, 1010) == 10)
 
 
@@ -23,4 +24,5 @@ def test_4():
     assert(get_actual_trip_cost(1000, 1010, 0, 3.09) == 0.0)
     assert(get_actual_trip_cost(1000, 1010, 36, 0) == 0.0)
     assert(get_actual_trip_cost(1010, 1000, 36, 3.09) == 0.0)
+    assert(get_actual_trip_cost(-10, 1000, 36, 3.09) == 0.0)
     assert(get_actual_trip_cost(1000, 1010, 36, 3.09) == 0.86)
