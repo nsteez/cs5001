@@ -19,6 +19,22 @@ def recipe_to_file(recipe_name):
     recipe_name = recipe_name.replace(" ", "_") +".txt"
     return recipe_name
 
+
+def write_file(recipe_name, filename, ingredients, time, directions):
+    file = open(filename, "w")
+    file.write(recipe_name + "\n")
+    file.write("\n")
+    file.write("Ingredients:\n")
+    for ingredient in ingredients:
+        file.write(ingredient + "\n")
+    file.write("\n")
+    file.write("Time: " + str(time) + " minutes\n")
+    file.write("\n")
+    file.write("Directions:\n")
+    file.write(directions)
+    file.close()
+
+
 #print(recipe_to_file("   Net%t iSp aghett i8262$    "))
 
 def main():
@@ -31,20 +47,20 @@ def main():
         try:
             user_input = int(input("MENU: 1 - Save a new recipe, 2 - Read a recipe, 3 - Quit "))
             if user_input == 1:
-                print("Saving a New Recipe ")
-                #ingredients = input("Enter the ingredients on one line. Separate each ingredient with a comma.").split(",")
                 ingredients = []
                 while len(ingredients) < 1:
                     valid = False
-                    ingredients = input("Enter the ingredients on one line. Separate each ingredient with a comma.").split(",")
+                    ingredients = input("Enter the ingredients on one line. Separate each ingredient with a comma. ").split(",")
                     for i in range(len(ingredients)):
                         ingredients[i] = ingredients[i].strip()
                         if ingredients[i] != "":
                             valid = True
                     if len(ingredients) == 0 or valid == False:
-                        print(ingredients)
-                        print("Receipe must have at least one ingredient.")
+                        print("Recipe must have at least one ingredient.")
                         ingredients = []
+
+                directions = input("Enter the directions (1 paragraph only): ")
+
                 time = -1
                 while time < 0:
                     try:
@@ -54,29 +70,33 @@ def main():
                     if time < 0:
                         print("Invalid time. Must be an integer greater than or equal to 0.")
 
-                directions = input("(Enter the directions (1 paragraph only): ")
-                recipe_name = input("Enter the name of the recipe: ")
+                recipe_name = input("Enter a name for the recipe: ")
 
                 file_name = recipe_to_file(recipe_name)
                 while file_name == ".txt":
-                    print("Unable to to create the filename.")
-                    file_name = input("Enter a string containing only letters, numbers and spaces: ")
+                    print("Unable to create the filename.")
+                    file_name = input("Enter a string containing only letters, numbers, and spaces ")
                     file_name = recipe_to_file(file_name) # remove spaces, add underscores and .txt at end
 
-                file = open(file_name,'w')
+                write_file(recipe_name, file_name, ingredients, time, directions)
                 print(recipe_name, "recipe saved to", file_name)
+
             elif user_input == 2:
                 recipe_name = input("Enter the name of the recipe: ")
-                #Attempt to open a file
-                #output = open(file,'r') # TODO
+                file_name = recipe_to_file(recipe_name)
+                try:
+                    file = open(file_name, "r")
+                    print(file.read())
+                except FileNotFoundError:
+                    print("Unable to read", file_name)
 
 
             elif user_input == 3:
                 break
             else:
-                print("Invalid Choice")
+                print("Invalid choice.")
         except ValueError as ex:
-            print("Enter an Integer")
+            print("Invalid choice.")
 
 
 if __name__ == "__main__":
