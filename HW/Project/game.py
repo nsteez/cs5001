@@ -9,6 +9,10 @@ import math
 import turtle
 from game_state import GameState
 
+import pprint
+
+pp = pprint.PrettyPrinter()
+
 NUM_SQUARES = 8 # The number of squares on each row.
 SQUARE = 50 # The size of each square in the checkerboard.
 SQUARE_COLORS = ("dim gray", "white")
@@ -80,13 +84,13 @@ def click_handler(x, y):
     print(row_idx, col_idx)
     print(board_state.squares[row_idx][col_idx])
     coordinates = [row_idx, col_idx]
-    print(coordinates)
-    if GameState.BLACK == True:
-        if len(clicks) == 2:
-            clicks.append()
-            print(clicks)
-    else:
-        GameState.RED == True
+    clicks.append(coordinates)
+    print(clicks)
+    if len(clicks) == 2:
+        board_state.squares[clicks[0][0]][clicks[0][1]] = board_state.EMPTY
+        board_state.squares[clicks[1][0]][clicks[1][1]] = board_state.current_player
+        draw_board(turtle.Turtle(), board_state)
+        clicks.clear()
 
 
 def draw_pieces(pen, pieces):
@@ -98,6 +102,8 @@ def draw_pieces(pen, pieces):
                    color - red or black
        Returns: nothing
     '''
+    pen.penup() # This allows the pen to be moved.
+    pen.hideturtle() # This gets rid of the triangle cursor.
     for row_idx, row in enumerate(pieces):
         for col_idx, col in enumerate(row):
             if pieces[row_idx][col_idx] == GameState.EMPTY:
@@ -108,10 +114,9 @@ def draw_pieces(pen, pieces):
             draw_circle(pen, SQUARE / 2)
 
 
-def piece_clicked():
-    pass
-
 def draw_board(pen, game_state):
+    pen.penup() # This allows the pen to be moved.
+    pen.hideturtle() # This gets rid of the triangle cursor.
     pen.color("black", "white") # The first parameter is the outline color, the second is the fille
     pen.setposition(ORIGIN[0], ORIGIN[1])
     draw_square(pen, BOARD_SIZE)
