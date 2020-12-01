@@ -16,10 +16,14 @@ SQUARE_COLORS = ("dim gray", "white")
 CIRCLE = 40
 BOARD_SIZE = NUM_SQUARES * SQUARE
 ORIGIN = [-BOARD_SIZE / 2, -BOARD_SIZE / 2]
-board_state = GameState()
-clicks = []
 SX = 1
 SY = 0
+DIRECTION_LIST_BLACK = [[1, -1], [1, 1]]
+DIRECTION_LIST_KING = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+DIRECTION_LIST_RED = [[-1, 1],[-1, -1]]
+
+board_state = GameState()
+clicks = []
 
 def draw_square(a_turtle, size):
     '''
@@ -89,6 +93,8 @@ def click_handler(x, y):
         if board_state.squares[sq_y][sq_x] != board_state.current_player:
             print("You can only move your own pieces")
             clicks.clear()
+        else:
+            print(possible_move(coordinates))
     if len(clicks) == 2:
         make_move(clicks)
         clicks.clear()
@@ -119,8 +125,8 @@ def valid_moves(clicks):
     new_square = board_state.squares[new_location[SY]][new_location[SX]]
 
     if new_square != board_state.EMPTY:
-        print("You cannot do capturing moves right now")
-        return False
+       print("You cannot move onto another piece")
+       return False
 
     if old_square == board_state.RED:
         if old_location[SY] - new_location[SY] == 1 and (old_location[SX] - new_location[SX] == -1 or old_location[SX] - new_location[SX] == 1):
@@ -136,6 +142,39 @@ def valid_moves(clicks):
         else:
             print("invalid black move")
             return False
+
+def possible_move(location):
+    possible_moves = []
+    piece = board_state.squares[location[SY]][location[SX]]
+
+    if piece == board_state.EMPTY:
+        return possible_moves
+
+    if piece == board_state.RED:
+        possible_direction = DIRECTION_LIST_RED
+        opponent_piece = [board_state.BLACK, board_state.BLACK_KING]
+    elif piece == board_state.RED_KING:
+        possible_direction = DIRECTION_LIST_KING
+        opponent_piece = [board_state.BLACK, board_state.BLACK_KING]
+    elif piece == board_state.BLACK:
+        possible_direction = DIRECTION_LIST_BLACK
+        opponent_piece = [board_state.RED, board_state.RED_KING]
+    elif piece == board_state.BLACK_KING:
+        possible_direction = DIRECTION_LIST_KING
+        opponent_piece = [board_state.RED, board_state.RED_KING]
+
+    for direction in possible_direction:
+        move_row = location[SY] + direction[SY]
+        move_col = location[SX] + direction[SX]
+        if board_state.squares[move_row][move_col] == board_state.EMPTY:
+            possible_moves.append([direction[SY], direction[SX]])
+        elif board_state.squares[move_row][move_col] in opponent_piece:
+            move_row += direction[SY]
+            move_col += direction[SX]
+            if board_state.squares[move_row][move_col] == board_state.EMPTY:
+                possible_moves.insert(0, [2*direction[SY], 2*direction[SX]])
+
+    return possible_moves
 
 def draw_pieces(pen, pieces):
     '''
