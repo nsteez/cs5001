@@ -1,7 +1,3 @@
-# from show import Show
-# from channel import Channel
-
-
 class Actor:
     def __init__(self, firstname, lastname, actors_shows):
         self.firstname = firstname
