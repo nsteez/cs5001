@@ -113,25 +113,37 @@ def make_move(clicks):
     move = [new_location[SY] - old_location[SY], new_location[SX] - old_location[SX]]
     moves = possible_move(old_location)
     capturing_moves = []
+    all_moves = possible_move_all_pieces()
+    all_capturing_moves = []
 
     for move_iterator in moves:
         if move_iterator[SY] % 2 == 0:
             capturing_moves.append(move_iterator)
 
+    for move_iterator in all_moves:
+        if move_iterator[SY] % 2 == 0:
+            all_capturing_moves.append(move_iterator)
+
     print(move, moves, capturing_moves)
 
-    if len(capturing_moves) > 0 and move not in capturing_moves:
+    if len(all_capturing_moves) > 0 and move not in capturing_moves:
         print("You must take a capturing move")
         return
 
     if move in moves:
         board_state.squares[old_location[SY]][old_location[SX]] = board_state.EMPTY
         if move[SY] % 2 == 0:
-            captured_location = [
-                int(old_location[SY] + (move[SY] / 2)),
-                int(old_location[SX] + (move[SX] / 2))
-            ]
-            board_state.squares[captured_location[SY]][captured_location[SX]] = board_state.EMPTY
+            direction = [int(move[SY] / abs(move[SY])) , int(move[SX] / abs(move[SX]))]
+            print("direction:",direction)
+            current_location = [0, 0]
+            current_location[SY] = old_location[SY]
+            current_location[SX] = old_location[SX]
+
+            while current_location[SY] != new_location[SY] and current_location[SX] != new_location[SX]:
+                current_location[SY] += direction[SY]
+                current_location[SX] += direction[SX]
+
+                board_state.squares[current_location[SY]][current_location[SX]] = board_state.EMPTY
         board_state.squares[new_location[SY]][new_location[SX]] = board_state.current_player
         draw_board(turtle.Turtle(), board_state)
         finish_move()
@@ -168,6 +180,7 @@ def possible_move(location):
             move_col += direction[SX]
             if move_col < 0 or move_col > 7 or move_row < 0 or move_row > 7:
                 continue
+            current_move = []
             while board_state.squares[move_row][move_col] == board_state.EMPTY:
                 current_move = [move_row, move_col]
                 move_row += direction[SY]
@@ -180,17 +193,29 @@ def possible_move(location):
                 move_col += direction[SX]
                 if not is_inside_board(move_col, move_row):
                     break
-                #print(current_move)
-                #print(board_state.squares)
-            possible_moves.insert(0,[current_move[SY],current_move[SX]])
-
-
-            #     possible_moves.insert(0, [2*direction[SY], 2*direction[SX]])
-            #     return
-            # if board_state.squares[move_row][move_col] == board_state.EMPTY:
-            #     possible_moves.insert(0, [2*direction[SY], 2*direction[SX]])
+            if len(current_move) > 0:
+                possible_moves.insert(0,[current_move[SY]-location[SY],current_move[SX]-location[SX]])
 
     return possible_moves
+
+def possible_move_all_pieces():
+    list_of_possible_moves = []
+    curr_player = board_state.current_player
+
+    col = 0
+    while col <= 7:
+        row = 0
+
+        while row <= 7:
+            if board_state.squares[row][col] == curr_player:
+                possible_move_this_piece = possible_move([row,col])
+                if len(possible_move_this_piece) > 0:
+                    list_of_possible_moves = list_of_possible_moves + possible_move_this_piece
+            row += 1
+        col+=1
+    print(list_of_possible_moves)
+    return list_of_possible_moves
+
 
 def is_inside_board(col, row):
     return False if col < 0 or col > 7 or row < 0 or row > 7 else True
