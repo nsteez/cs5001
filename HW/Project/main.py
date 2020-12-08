@@ -80,13 +80,13 @@ def click_handler(x, y):
         valid_str = "invalid"
     if (y < ORIGIN[1] or y > ORIGIN[1] + BOARD_SIZE):
         valid_str = "invalid"
-    print("Clicked at ", x, y, "a", valid_str, "position")
+    # print("Clicked at ", x, y, "a", valid_str, "position")
     sq_y = math.floor((y - ORIGIN[1]) / SQUARE)
     sq_x = math.floor((x - ORIGIN[0]) / SQUARE)
-    print(sq_y, sq_x)
+    # print(sq_y, sq_x)
     if valid_str == "invalid":
         return
-    print(board_state.squares[sq_y][sq_x])
+    # print(board_state.squares[sq_y][sq_x])
     coordinates = [sq_y, sq_x]
     clicks.append(coordinates)
     if len(clicks) == 1:
@@ -110,38 +110,31 @@ def make_move(clicks):
     print("Making move", clicks)
     old_location = clicks[0]
     new_location = clicks[1]
+    move = [new_location[SY] - old_location[SY], new_location[SX] - old_location[SX]]
+    moves = possible_move(old_location)
+    capturing_moves = []
 
-    if valid_moves(clicks) is True:
+    for move_iterator in moves:
+        if move_iterator[SY] % 2 == 0:
+            capturing_moves.append(move_iterator)
+
+    print(move, moves, capturing_moves)
+
+    if len(capturing_moves) > 0 and move not in capturing_moves:
+        print("You must take a capturing move")
+        return
+
+    if move in moves:
         board_state.squares[old_location[SY]][old_location[SX]] = board_state.EMPTY
+        if move[SY] % 2 == 0:
+            captured_location = [
+                int(old_location[SY] + (move[SY] / 2)),
+                int(old_location[SX] + (move[SX] / 2))
+            ]
+            board_state.squares[captured_location[SY]][captured_location[SX]] = board_state.EMPTY
         board_state.squares[new_location[SY]][new_location[SX]] = board_state.current_player
         draw_board(turtle.Turtle(), board_state)
         finish_move()
-
-def valid_moves(clicks):
-    old_location = clicks[0]
-    new_location = clicks[1]
-
-    old_square = board_state.squares[old_location[SY]][old_location[SX]]
-    new_square = board_state.squares[new_location[SY]][new_location[SX]]
-
-    if new_square != board_state.EMPTY:
-       print("You cannot move onto another piece")
-       return False
-
-    if old_square == board_state.RED:
-        if old_location[SY] - new_location[SY] == 1 and (old_location[SX] - new_location[SX] == -1 or old_location[SX] - new_location[SX] == 1):
-            print("Valid red move")
-            return True
-        else:
-            print("Invalid red move")
-            return False
-    if old_square == board_state.BLACK:
-        if old_location[SY] - new_location[SY] == -1 and (old_location[SX] - new_location[SX] == -1 or old_location[SX] - new_location[SX] == 1):
-            print("Valid black move")
-            return True
-        else:
-            print("invalid black move")
-            return False
 
 def possible_move(location):
     possible_moves = []
@@ -166,15 +159,47 @@ def possible_move(location):
     for direction in possible_direction:
         move_row = location[SY] + direction[SY]
         move_col = location[SX] + direction[SX]
+        if move_col < 0 or move_col > 7 or move_row < 0 or move_row > 7:
+            continue
         if board_state.squares[move_row][move_col] == board_state.EMPTY:
             possible_moves.append([direction[SY], direction[SX]])
         elif board_state.squares[move_row][move_col] in opponent_piece:
             move_row += direction[SY]
             move_col += direction[SX]
-            if board_state.squares[move_row][move_col] == board_state.EMPTY:
-                possible_moves.insert(0, [2*direction[SY], 2*direction[SX]])
+            if move_col < 0 or move_col > 7 or move_row < 0 or move_row > 7:
+                continue
+            while board_state.squares[move_row][move_col] == board_state.EMPTY:
+                current_move = [move_row, move_col]
+                move_row += direction[SY]
+                move_col += direction[SX]
+                if not is_inside_board(move_col, move_row):
+                    break
+                if board_state.squares[move_row][move_col] not in opponent_piece:
+                    break
+                move_row += direction[SY]
+                move_col += direction[SX]
+                if not is_inside_board(move_col, move_row):
+                    break
+                #print(current_move)
+                #print(board_state.squares)
+            possible_moves.insert(0,[current_move[SY],current_move[SX]])
+
+
+            #     possible_moves.insert(0, [2*direction[SY], 2*direction[SX]])
+            #     return
+            # if board_state.squares[move_row][move_col] == board_state.EMPTY:
+            #     possible_moves.insert(0, [2*direction[SY], 2*direction[SX]])
 
     return possible_moves
+
+def is_inside_board(col, row):
+    return False if col < 0 or col > 7 or row < 0 or row > 7 else True
+
+def is_king():
+    pass
+
+def board_click():
+    pass
 
 def draw_pieces(pen, pieces):
     '''
