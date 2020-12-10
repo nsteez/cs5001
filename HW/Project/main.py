@@ -91,23 +91,52 @@ def click_handler(x, y):
     clicks.append(coordinates)
     if len(clicks) == 1:
         if board_state.squares[sq_y][sq_x] != board_state.current_player:
-            print("You can only move your own pieces")
+           # print("You can only move your own pieces")
             clicks.clear()
-        else:
-            print(possible_move(coordinates))
+       # else:
+       #     print(possible_move(coordinates))
     if len(clicks) == 2:
         make_move(clicks)
         clicks.clear()
 
 # When the move is over, change current player to the other color
 def finish_move():
+    other_player = board_state.current_player
     if board_state.current_player == board_state.BLACK:
         board_state.current_player = board_state.RED
     else:
         board_state.current_player = board_state.BLACK
 
+    # Check if game over, if current player has no possible move
+    if len(possible_move_all_pieces()) == 0:
+        print("Game over!", other_player, ' won')
+        board_state.is_game_over = True
+        return
+
+    if board_state.current_player == board_state.RED:
+        ai_moves = possible_moves_ai()
+        ai_capturing_moves = filter_capturing_moves_ai(ai_moves)
+        ai_move = [[],[]]
+        if len(ai_capturing_moves)>0:
+            ai_move[0] = ai_capturing_moves[0][0]
+            ai_move[1] = ai_capturing_moves[0][1][0]
+            ai_move[1][SY] += ai_move[0][SY]
+            ai_move[1][SX] += ai_move[0][SX]
+        else:
+            ai_move[0] = ai_moves[0][0]
+            ai_move[1] = ai_moves[0][1][0]
+            ai_move[1][SY] += ai_move[0][SY]
+            ai_move[1][SX] += ai_move[0][SX]
+        print("AI move:", ai_move)
+        make_move(ai_move)
+
+
 def make_move(clicks):
-    print("Making move", clicks)
+    if board_state.is_game_over:
+        print("Game over, cannot make another move")
+        return
+
+    #print("Making move", clicks)
     old_location = clicks[0]
     new_location = clicks[1]
     move = [new_location[SY] - old_location[SY], new_location[SX] - old_location[SX]]
@@ -124,17 +153,17 @@ def make_move(clicks):
         if move_iterator[SY] % 2 == 0:
             all_capturing_moves.append(move_iterator)
 
-    print(move, moves, capturing_moves)
+  #  print(move, moves, capturing_moves)
 
     if len(all_capturing_moves) > 0 and move not in capturing_moves:
-        print("You must take a capturing move")
+        #print("You must take a capturing move")
         return
 
     if move in moves:
         board_state.squares[old_location[SY]][old_location[SX]] = board_state.EMPTY
         if move[SY] % 2 == 0:
             direction = [int(move[SY] / abs(move[SY])) , int(move[SX] / abs(move[SX]))]
-            print("direction:",direction)
+          #  print("direction:",direction)
             current_location = [0, 0]
             current_location[SY] = old_location[SY]
             current_location[SX] = old_location[SX]
@@ -213,8 +242,41 @@ def possible_move_all_pieces():
                     list_of_possible_moves = list_of_possible_moves + possible_move_this_piece
             row += 1
         col+=1
-    print(list_of_possible_moves)
+   # print(list_of_possible_moves)
     return list_of_possible_moves
+
+def possible_moves_ai():
+    list_of_possible_moves = []
+    curr_player = board_state.current_player
+
+    col = 0
+    while col <= 7:
+        row = 0
+
+        while row <= 7:
+            if board_state.squares[row][col] == curr_player:
+                possible_move_this_piece = possible_move([row,col])
+                if len(possible_move_this_piece) > 0:
+                    list_of_possible_moves.append([[row, col], possible_move_this_piece])
+            row += 1
+        col+=1
+    #print(list_of_possible_moves)
+    return list_of_possible_moves
+
+
+def filter_capturing_moves_ai(list_of_pieces):
+    list_of_possible_capturing_moves = []
+    for move in list_of_pieces:
+        piece_location = move[0]
+        piece_possible_moves = move[1]
+        piece_possible_capturing_moves = []
+        for possible_move in piece_possible_moves:
+            if possible_move[SY] % 2 == 0:
+               piece_possible_capturing_moves.append(possible_move)
+        if len(piece_possible_capturing_moves) > 0:
+            list_of_possible_capturing_moves.append([piece_location, piece_possible_capturing_moves])
+    #print(list_of_possible_capturing_moves)
+    return list_of_possible_capturing_moves
 
 
 def is_inside_board(col, row):
