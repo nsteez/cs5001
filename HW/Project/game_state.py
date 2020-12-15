@@ -18,8 +18,3 @@ class GameState:
         ]
         self.current_player = GameState.BLACK
         self.is_game_over = False
-
-    def is_game_over_fn(self, BLACK):
-        if len(self.squares):
-            print("hello")
-
