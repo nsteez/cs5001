@@ -301,16 +301,11 @@ def is_king(clicks):
     if board_state.current_player == 'BLACK':
         if clicks[1] in black_king:
             print("Im in black king")
-            # board_state.squares[piece_position[SY]][piece_position[SX]] = board_state.current_player == \
             board_state.squares[clicks[1][SY]][clicks[1][SX]] = board_state.BLACK_KING
     elif board_state.current_player == 'RED':
         if clicks[1] in red_king:
             print("Im in red king")
-            # board_state.squares[piece_position[SY]][piece_position[SX]] = board_state.current_player == \
             board_state.squares[clicks[1][SY]][clicks[1][SX]] = board_state.RED_KING
-            # board_state.current_player == "BLACK_KING"
-
-
 
 
 def board_click():
