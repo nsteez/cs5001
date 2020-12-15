@@ -2,7 +2,8 @@
 Netti Welsh
 CS 5001, Fall 2020
 
-This code will get you started with the final project, milestone 2.
+Final Project: Checkers game
+This game starts with human user as player black and computer user as red player
 '''
 
 import math
@@ -52,7 +53,7 @@ def draw_circle(a_turtle, radius):
         Draw a circle with a given radius.
     Parameters:
         a_turtle -- an instance of Turtle
-        size -- the radius of the circle
+        radius -- the radius of the circle
     Returns:
         Nothing. Draws a circle in the graphics window.
     '''
@@ -63,10 +64,12 @@ def draw_circle(a_turtle, radius):
     a_turtle.penup()
 
 
+
 def click_handler(x, y):
     '''
         Function -- click_handler
-            Called when a click occurs.
+            Called when a click occurs. It checks to see if the click is within
+            the board range. It checks two clicks by placing them in the coordinates
         Parameters:
             x -- X coordinate of the click. Automatically provided by Turtle.
             y -- Y coordinate of the click. Automatically provided by Turtle.
@@ -74,6 +77,7 @@ def click_handler(x, y):
             Does not and should not return. Click handlers are a special type
             of function automatically called by Turtle. You will not have
             access to anything returned by this function.
+
     '''
     valid_str = "valid"
     if (x < ORIGIN[0] or x > ORIGIN[0] + BOARD_SIZE):
@@ -86,7 +90,7 @@ def click_handler(x, y):
     #print(sq_y, sq_x)
     if valid_str == "invalid":
         return
-    print(board_state.squares[sq_y][sq_x])
+    #print(board_state.squares[sq_y][sq_x])
     coordinates = [sq_y, sq_x]
     clicks.append(coordinates)
     if len(clicks) == 1:
@@ -99,8 +103,19 @@ def click_handler(x, y):
         make_move(clicks)
         clicks.clear()
 
-# When the move is over, change current player to the other color
+
 def finish_move():
+    '''
+    Function -- finish_move
+        When the move is over, it will change current player to the other color,
+        then check if the game is over based on possible moves
+    Parameters:
+        None
+    Returns:
+        Nothing
+
+    '''
+    #print(possible_move_all_pieces())
     other_player = board_state.current_player
     if board_state.current_player == board_state.BLACK:
         board_state.current_player = board_state.RED
@@ -108,10 +123,30 @@ def finish_move():
         board_state.current_player = board_state.BLACK
 
     # Check if game over, if current player has no possible move
+    # print("...")
+    # print(possible_move_all_pieces())
+    # print(possible_moves_ai())
     if len(possible_move_all_pieces()) == 0:
         print("Game over!", other_player, ' won')
         board_state.is_game_over = True
         return
+
+    move_ai_piece()
+
+
+def move_ai_piece():
+    '''
+    Function -- move_ai_piece
+        checks the possible moves the AI has and selects the first possible move in the
+        possible move list. If the list of capturing moves is greater than zero. The AI selects the first
+        available capturing move.
+
+    Parameters:
+        None
+    Returns:
+        Nothing
+
+    '''
 
     if board_state.current_player == board_state.RED:
         ai_moves = possible_moves_ai()
@@ -132,6 +167,18 @@ def finish_move():
 
 
 def make_move(clicks):
+    '''
+    Function -- make_move
+        Divides two clicks as new location and old location to determine where the piece will move on the board.
+        The piece moves to the new location if that location is EMPTY
+        If there is a capturing move available that move must be made before proceeding in the game.
+
+    Parameters:
+        clicks -- a list of clicks formed by click handler
+    Returns:
+        None
+
+    '''
     if board_state.is_game_over:
         print("Game over, cannot make another move")
         return
@@ -177,12 +224,24 @@ def make_move(clicks):
                 board_state.squares[current_location[SY]][current_location[SX]] = board_state.EMPTY
 
         board_state.squares[new_location[SY]][new_location[SX]] = old_piece
-        # TODO: See if the piece landed at the end of the board and should be converted into a king
+        # See if the piece landed at the end of the board and should be converted into a king
         print(is_king(clicks))
         draw_board(turtle.Turtle(), board_state)
         finish_move()
 
+
+
 def possible_move(location):
+    '''
+    Function -- possible_move
+        checks for possible moves a selected piece can make and adds them to a list of possible moves
+
+    Parameters:
+        location -- the coordinates of the the current selected piece
+    Returns:
+        a list of possible moves for the current piece
+
+    '''
     possible_moves = []
     piece = board_state.squares[location[SY]][location[SX]]
 
@@ -232,34 +291,60 @@ def possible_move(location):
 
     return possible_moves
 
+
+
+
 def possible_move_all_pieces():
+    '''
+    Function -- possible_move_all_pieces
+           for the current player creates a list of all the possible moves
+           available for all the pieces on the board belonging to the current player (black or red)
+
+    Parameters:
+        None
+    Returns:
+        list of all the possible moves for the current player
+
+    '''
     list_of_possible_moves = []
-    curr_player = board_state.current_player
 
     col = 0
     while col <= 7:
         row = 0
 
         while row <= 7:
-            if board_state.squares[row][col] == curr_player:
+            if is_current_player([row,col]):
                 possible_move_this_piece = possible_move([row,col])
                 if len(possible_move_this_piece) > 0:
                     list_of_possible_moves = list_of_possible_moves + possible_move_this_piece
             row += 1
         col+=1
-   # #print(list_of_possible_moves)
+    #print(list_of_possible_moves)
     return list_of_possible_moves
 
+
+
 def possible_moves_ai():
+    '''
+    Function -- possible_moves_ai
+        creates a list of all the possble moves for the current player AI piece
+
+    Parameters:
+        None
+    Returns:
+        list of all possible moves for the a_i
+
+    '''
     list_of_possible_moves = []
-    curr_player = board_state.current_player
+
+
 
     col = 0
     while col <= 7:
         row = 0
 
         while row <= 7:
-            if board_state.squares[row][col] == curr_player:
+            if is_current_player([row,col]):
                 possible_move_this_piece = possible_move([row,col])
                 if len(possible_move_this_piece) > 0:
                     list_of_possible_moves.append([[row, col], possible_move_this_piece])
@@ -269,7 +354,18 @@ def possible_moves_ai():
     return list_of_possible_moves
 
 
+
 def filter_capturing_moves_ai(list_of_pieces):
+    '''
+    Function -- filter_capturing_moves_ai
+        takes a list of possible moves for the ai and searches to see if there is a
+        capturing move available
+    Parameters:
+        list_of_pieces -- takes a list of possible a_i moves
+    Returns:
+        a list of possible capturing moves
+
+    '''
     list_of_possible_capturing_moves = []
     for move in list_of_pieces:
         piece_location = move[0]
@@ -284,17 +380,61 @@ def filter_capturing_moves_ai(list_of_pieces):
     return list_of_possible_capturing_moves
 
 
+
 def is_inside_board(col, row):
+    '''
+    Function -- is_inside_board
+        checks that x and y coordinates are within range of the board
+
+    Parameters:
+        col -- x -coordinates
+        row -- y -coordinates
+    Returns:
+        True or False
+
+    '''
     return False if col < 0 or col > 7 or row < 0 or row > 7 else True
 
+
+
 def is_current_player(location):
+    '''
+    Function -- is_current_player
+        asserts whose turn it is in the game play
+        player black can move black or black_king pieces
+        player red can move red of red_king pieces
+
+
+    Parameters:
+        location -- location of current piece
+    Returns:
+        True if the red player clicks on a red piece or red king piece
+        True if the black player clicks on a black piece or black king piece
+        False otherwise
+
+    '''
     if board_state.current_player == board_state.RED:
         return True if board_state.squares[location[SY]][location[SX]] == board_state.RED or board_state.squares[location[SY]][location[SX]] == board_state.RED_KING else False
     elif board_state.current_player == board_state.BLACK:
         return True if board_state.squares[location[SY]][location[SX]] == board_state.BLACK or board_state.squares[location[SY]][location[SX]] == board_state.BLACK_KING else False
     return False
 
+
+
+
 def is_king(clicks):
+    '''
+    Function -- is_king
+        checks if black piece land on a black_king spot on the board
+        checks if red piece lands on a red_king spot on the board
+
+
+    Parameters:
+        clicks -- takes the click global variable clicks
+    Returns:
+        Nothing
+
+    '''
     black_king = [[7,0],[7,2],[7,4],[7,6]]
     red_king = [[0,1],[0,3],[0,5],[0,7]]
 
@@ -308,8 +448,6 @@ def is_king(clicks):
             board_state.squares[clicks[1][SY]][clicks[1][SX]] = board_state.RED_KING
 
 
-def board_click():
-    pass
 
 def draw_pieces(pen, pieces):
     '''
@@ -317,7 +455,6 @@ def draw_pieces(pen, pieces):
             draws pieces on the board
        Parameters: pen - pen
                    pieces - list of pieces
-                   color - red or black
        Returns: nothing
     '''
     pen.penup() # This allows the pen to be moved.
@@ -343,7 +480,16 @@ def draw_pieces(pen, pieces):
             draw_circle(pen, (SQUARE / 2) - 1)
 
 
+
 def draw_board(pen, game_state):
+    '''
+    Function -- draw_board
+
+    Parameters:
+        clicks --
+    Returns:
+
+    '''
     pen.penup() # This allows the pen to be moved.
     pen.hideturtle() # This gets rid of the triangle cursor.
     pen.color("black", "white") # The first parameter is the outline color, the second is the fille
@@ -364,6 +510,8 @@ def draw_board(pen, game_state):
                 draw_square(pen, SQUARE)
 
     draw_pieces(pen, game_state.squares)
+
+
 
 
 def main():
