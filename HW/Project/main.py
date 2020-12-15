@@ -247,7 +247,7 @@ def possible_move_all_pieces():
                     list_of_possible_moves = list_of_possible_moves + possible_move_this_piece
             row += 1
         col+=1
-   # print(list_of_possible_moves)
+   # #print(list_of_possible_moves)
     return list_of_possible_moves
 
 def possible_moves_ai():
