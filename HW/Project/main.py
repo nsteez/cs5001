@@ -54,7 +54,7 @@ def draw_circle(a_turtle, radius):
         a_turtle -- an instance of Turtle
         size -- the radius of the circle
     Returns:
-        Nothing. Draws a circle in the graphics windo.
+        Nothing. Draws a circle in the graphics window.
     '''
     a_turtle.pendown()
     a_turtle.begin_fill()
@@ -80,21 +80,21 @@ def click_handler(x, y):
         valid_str = "invalid"
     if (y < ORIGIN[1] or y > ORIGIN[1] + BOARD_SIZE):
         valid_str = "invalid"
-    # print("Clicked at ", x, y, "a", valid_str, "position")
+    #print("Clicked at ", x, y, "a", valid_str, "position")
     sq_y = math.floor((y - ORIGIN[1]) / SQUARE)
     sq_x = math.floor((x - ORIGIN[0]) / SQUARE)
-    # print(sq_y, sq_x)
+    #print(sq_y, sq_x)
     if valid_str == "invalid":
         return
-    # print(board_state.squares[sq_y][sq_x])
+    print(board_state.squares[sq_y][sq_x])
     coordinates = [sq_y, sq_x]
     clicks.append(coordinates)
     if len(clicks) == 1:
-        if board_state.squares[sq_y][sq_x] != board_state.current_player:
-           # print("You can only move your own pieces")
+        if not is_current_player(coordinates):
+            print("You can only move your own pieces")
             clicks.clear()
-       # else:
-       #     print(possible_move(coordinates))
+        else:
+            print(possible_move(coordinates))
     if len(clicks) == 2:
         make_move(clicks)
         clicks.clear()
@@ -127,7 +127,7 @@ def finish_move():
             ai_move[1] = ai_moves[0][1][0]
             ai_move[1][SY] += ai_move[0][SY]
             ai_move[1][SX] += ai_move[0][SX]
-        print("AI move:", ai_move)
+        #print("AI move:", ai_move)
         make_move(ai_move)
 
 
@@ -136,7 +136,7 @@ def make_move(clicks):
         print("Game over, cannot make another move")
         return
 
-    #print("Making move", clicks)
+    print("Making move", clicks)
     old_location = clicks[0]
     new_location = clicks[1]
     move = [new_location[SY] - old_location[SY], new_location[SX] - old_location[SX]]
@@ -144,6 +144,8 @@ def make_move(clicks):
     capturing_moves = []
     all_moves = possible_move_all_pieces()
     all_capturing_moves = []
+
+
 
     for move_iterator in moves:
         if move_iterator[SY] % 2 == 0:
@@ -160,6 +162,7 @@ def make_move(clicks):
         return
 
     if move in moves:
+        old_piece = board_state.squares[old_location[SY]][old_location[SX]]
         board_state.squares[old_location[SY]][old_location[SX]] = board_state.EMPTY
         if move[SY] % 2 == 0:
             direction = [int(move[SY] / abs(move[SY])) , int(move[SX] / abs(move[SX]))]
@@ -171,9 +174,11 @@ def make_move(clicks):
             while current_location[SY] != new_location[SY] and current_location[SX] != new_location[SX]:
                 current_location[SY] += direction[SY]
                 current_location[SX] += direction[SX]
-
                 board_state.squares[current_location[SY]][current_location[SX]] = board_state.EMPTY
-        board_state.squares[new_location[SY]][new_location[SX]] = board_state.current_player
+
+        board_state.squares[new_location[SY]][new_location[SX]] = old_piece
+        # TODO: See if the piece landed at the end of the board and should be converted into a king
+        print(is_king(clicks))
         draw_board(turtle.Turtle(), board_state)
         finish_move()
 
@@ -282,8 +287,31 @@ def filter_capturing_moves_ai(list_of_pieces):
 def is_inside_board(col, row):
     return False if col < 0 or col > 7 or row < 0 or row > 7 else True
 
-def is_king():
-    pass
+def is_current_player(location):
+    if board_state.current_player == board_state.RED:
+        return True if board_state.squares[location[SY]][location[SX]] == board_state.RED or board_state.squares[location[SY]][location[SX]] == board_state.RED_KING else False
+    elif board_state.current_player == board_state.BLACK:
+        return True if board_state.squares[location[SY]][location[SX]] == board_state.BLACK or board_state.squares[location[SY]][location[SX]] == board_state.BLACK_KING else False
+    return False
+
+def is_king(clicks):
+    black_king = [[7,0],[7,2],[7,4],[7,6]]
+    red_king = [[0,1],[0,3],[0,5],[0,7]]
+
+    if board_state.current_player == 'BLACK':
+        if clicks[1] in black_king:
+            print("Im in black king")
+            # board_state.squares[piece_position[SY]][piece_position[SX]] = board_state.current_player == \
+            board_state.squares[clicks[1][SY]][clicks[1][SX]] = board_state.BLACK_KING
+    elif board_state.current_player == 'RED':
+        if clicks[1] in red_king:
+            print("Im in red king")
+            # board_state.squares[piece_position[SY]][piece_position[SX]] = board_state.current_player == \
+            board_state.squares[clicks[1][SY]][clicks[1][SX]] = board_state.RED_KING
+            # board_state.current_player == "BLACK_KING"
+
+
+
 
 def board_click():
     pass
@@ -298,15 +326,26 @@ def draw_pieces(pen, pieces):
        Returns: nothing
     '''
     pen.penup() # This allows the pen to be moved.
+
     pen.hideturtle() # This gets rid of the triangle cursor.
     for row_idx, row in enumerate(pieces):
         for col_idx, col in enumerate(row):
             if pieces[row_idx][col_idx] == GameState.EMPTY:
                 continue
-            pen.fillcolor(pieces[row_idx][col_idx])
+            color = "WHITE"
+            if pieces[row_idx][col_idx] == "RED" or pieces[row_idx][col_idx] == "RED_KING":
+                color = "RED"
+            elif pieces[row_idx][col_idx] == "BLACK" or pieces[row_idx][col_idx] == "BLACK_KING":
+                color = "BLACK"
+
+            if pieces[row_idx][col_idx] == "RED_KING" or pieces[row_idx][col_idx] == "BLACK_KING":
+                pen.color("YELLOW", color)
+            else:
+                pen.color("BLACK", color)
+
             pen.setposition(ORIGIN[0] + SQUARE / 2 + (col_idx * SQUARE),
                             ORIGIN[0]              + (row_idx * SQUARE))
-            draw_circle(pen, SQUARE / 2)
+            draw_circle(pen, (SQUARE / 2) - 1)
 
 
 def draw_board(pen, game_state):
