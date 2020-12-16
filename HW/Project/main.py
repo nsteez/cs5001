@@ -2,8 +2,9 @@
 Netti Welsh
 CS 5001, Fall 2020
 
-Final Project: Checkers game
-This game starts with human user as player black and computer user as red player
+Final Project: Checkers Game
+This game starts with human user as
+player black and computer user as red player
 '''
 
 import math
@@ -94,47 +95,60 @@ def click_handler(x, y):
     coordinates = [sq_y, sq_x]
     clicks.append(coordinates)
     if len(clicks) == 1:
-        if not is_current_player(coordinates):
-            print("You can only move your own pieces")
+        if not is_current_player(board_state, coordinates):
+            #print("You can only move your own pieces")
             clicks.clear()
         else:
-            print(possible_move(coordinates))
+            print("...")
+           #print(possible_move(board_state, coordinates))
+           #print(possible_move_all_pieces(board_state))
     if len(clicks) == 2:
-        make_move(clicks)
+        make_move(board_state, clicks)
         clicks.clear()
 
 
-def finish_move():
+def switch_player(board_state):
     '''
-    Function -- finish_move
-        When the move is over, it will change current player to the other color,
-        then check if the game is over based on possible moves
+    Function -- switch_player
+        When the move is over, it will change current player to the other color
     Parameters:
-        None
+        board_state -- current state of the board
     Returns:
-        Nothing
+        other player
 
     '''
-    #print(possible_move_all_pieces())
     other_player = board_state.current_player
     if board_state.current_player == board_state.BLACK:
         board_state.current_player = board_state.RED
     else:
         board_state.current_player = board_state.BLACK
+    return other_player
+
+
+def finish_move(board_state):
+    '''
+    Function -- finish_move
+        When the move is over, it will change current player to the other color,
+        then check if the game is over based on possible moves
+    Parameters:
+        board_state - state of the board
+    Returns:
+        Nothing
+
+    '''
+
+    other_player = switch_player(board_state)
 
     # Check if game over, if current player has no possible move
-    # print("...")
-    # print(possible_move_all_pieces())
-    # print(possible_moves_ai())
-    if len(possible_move_all_pieces()) == 0:
-        print("Game over!", other_player, ' won')
+    if len(possible_move_all_pieces(board_state)) == 0:
+        #print("Game over!", other_player, ' won')
         board_state.is_game_over = True
         return
 
-    move_ai_piece()
+    move_ai_piece(board_state)
 
 
-def move_ai_piece():
+def move_ai_piece(board_state):
     '''
     Function -- move_ai_piece
         checks the possible moves the AI has and selects the first possible move in the
@@ -142,14 +156,16 @@ def move_ai_piece():
         available capturing move.
 
     Parameters:
-        None
+        board_state - state of the board
     Returns:
         Nothing
 
     '''
 
-    if board_state.current_player == board_state.RED:
-        ai_moves = possible_moves_ai()
+    if board_state.current_player == board_state.RED and not board_state.disable_ai:
+        ai_moves = possible_moves_ai(board_state)
+        if len(ai_moves) == 0:
+            return
         ai_capturing_moves = filter_capturing_moves_ai(ai_moves)
         ai_move = [[],[]]
         if len(ai_capturing_moves)>0:
@@ -163,10 +179,10 @@ def move_ai_piece():
             ai_move[1][SY] += ai_move[0][SY]
             ai_move[1][SX] += ai_move[0][SX]
         #print("AI move:", ai_move)
-        make_move(ai_move)
+        make_move(board_state, ai_move)
 
 
-def make_move(clicks):
+def make_move(board_state, clicks):
     '''
     Function -- make_move
         Divides two clicks as new location and old location to determine where the piece will move on the board.
@@ -174,6 +190,7 @@ def make_move(clicks):
         If there is a capturing move available that move must be made before proceeding in the game.
 
     Parameters:
+        board_state - state of the board
         clicks -- a list of clicks formed by click handler
     Returns:
         None
@@ -187,12 +204,10 @@ def make_move(clicks):
     old_location = clicks[0]
     new_location = clicks[1]
     move = [new_location[SY] - old_location[SY], new_location[SX] - old_location[SX]]
-    moves = possible_move(old_location)
+    moves = possible_move(board_state, old_location)
     capturing_moves = []
-    all_moves = possible_move_all_pieces()
+    all_moves = possible_move_all_pieces(board_state)
     all_capturing_moves = []
-
-
 
     for move_iterator in moves:
         if move_iterator[SY] % 2 == 0:
@@ -202,7 +217,7 @@ def make_move(clicks):
         if move_iterator[SY] % 2 == 0:
             all_capturing_moves.append(move_iterator)
 
-  #  print(move, moves, capturing_moves)
+    #print(move, moves, capturing_moves)
 
     if len(all_capturing_moves) > 0 and move not in capturing_moves:
         #print("You must take a capturing move")
@@ -225,18 +240,20 @@ def make_move(clicks):
 
         board_state.squares[new_location[SY]][new_location[SX]] = old_piece
         # See if the piece landed at the end of the board and should be converted into a king
-        print(is_king(clicks))
-        draw_board(turtle.Turtle(), board_state)
-        finish_move()
+        is_king(board_state, clicks)
+        if not board_state.is_testing:
+            draw_board(turtle.Turtle(), board_state)
+        finish_move(board_state)
 
 
 
-def possible_move(location):
+def possible_move(board_state, location):
     '''
     Function -- possible_move
         checks for possible moves a selected piece can make and adds them to a list of possible moves
 
     Parameters:
+        board_state - state of the board
         location -- the coordinates of the the current selected piece
     Returns:
         a list of possible moves for the current piece
@@ -288,20 +305,20 @@ def possible_move(location):
                     break
             if len(current_move) > 0:
                 possible_moves.insert(0,[current_move[SY]-location[SY],current_move[SX]-location[SX]])
-
+    print(possible_moves)
     return possible_moves
 
 
 
 
-def possible_move_all_pieces():
+def possible_move_all_pieces(board_state):
     '''
     Function -- possible_move_all_pieces
            for the current player creates a list of all the possible moves
            available for all the pieces on the board belonging to the current player (black or red)
 
     Parameters:
-        None
+        board_state - state of the board
     Returns:
         list of all the possible moves for the current player
 
@@ -313,8 +330,8 @@ def possible_move_all_pieces():
         row = 0
 
         while row <= 7:
-            if is_current_player([row,col]):
-                possible_move_this_piece = possible_move([row,col])
+            if is_current_player(board_state, [row, col]):
+                possible_move_this_piece = possible_move(board_state, [row, col])
                 if len(possible_move_this_piece) > 0:
                     list_of_possible_moves = list_of_possible_moves + possible_move_this_piece
             row += 1
@@ -324,28 +341,27 @@ def possible_move_all_pieces():
 
 
 
-def possible_moves_ai():
+def possible_moves_ai(board_state):
     '''
     Function -- possible_moves_ai
-        creates a list of all the possble moves for the current player AI piece
+        creates a list of all the possble moves for the current player
+        in the format expected by our AI
 
     Parameters:
-        None
+        board_state - state of the board
     Returns:
         list of all possible moves for the a_i
 
     '''
     list_of_possible_moves = []
 
-
-
     col = 0
     while col <= 7:
         row = 0
 
         while row <= 7:
-            if is_current_player([row,col]):
-                possible_move_this_piece = possible_move([row,col])
+            if is_current_player(board_state, [row, col]):
+                possible_move_this_piece = possible_move(board_state, [row,col])
                 if len(possible_move_this_piece) > 0:
                     list_of_possible_moves.append([[row, col], possible_move_this_piece])
             row += 1
@@ -366,6 +382,7 @@ def filter_capturing_moves_ai(list_of_pieces):
         a list of possible capturing moves
 
     '''
+    #print(list_of_pieces)
     list_of_possible_capturing_moves = []
     for move in list_of_pieces:
         piece_location = move[0]
@@ -397,15 +414,16 @@ def is_inside_board(col, row):
 
 
 
-def is_current_player(location):
+def is_current_player(board_state, location):
     '''
     Function -- is_current_player
-        asserts whose turn it is in the game play
+       checks if piece at the location belongs to the current player
         player black can move black or black_king pieces
         player red can move red of red_king pieces
 
 
     Parameters:
+        board_state - state of the board
         location -- location of current piece
     Returns:
         True if the red player clicks on a red piece or red king piece
@@ -422,14 +440,13 @@ def is_current_player(location):
 
 
 
-def is_king(clicks):
+def is_king(board_state, clicks):
     '''
     Function -- is_king
         checks if black piece land on a black_king spot on the board
         checks if red piece lands on a red_king spot on the board
-
-
     Parameters:
+        board_state - state of the board
         clicks -- takes the click global variable clicks
     Returns:
         Nothing
@@ -440,11 +457,11 @@ def is_king(clicks):
 
     if board_state.current_player == 'BLACK':
         if clicks[1] in black_king:
-            print("Im in black king")
+            # print("Im in black king")
             board_state.squares[clicks[1][SY]][clicks[1][SX]] = board_state.BLACK_KING
     elif board_state.current_player == 'RED':
         if clicks[1] in red_king:
-            print("Im in red king")
+            # print("Im in red king")
             board_state.squares[clicks[1][SY]][clicks[1][SX]] = board_state.RED_KING
 
 
@@ -486,13 +503,16 @@ def draw_board(pen, game_state):
     Function -- draw_board
 
     Parameters:
-        clicks --
+        pen -- pen
+        game_state - game_state classs
     Returns:
+
+
 
     '''
     pen.penup() # This allows the pen to be moved.
     pen.hideturtle() # This gets rid of the triangle cursor.
-    pen.color("black", "white") # The first parameter is the outline color, the second is the fille
+    pen.color("black", "white") # The first parameter is the outline color, the second is the filled
     pen.setposition(ORIGIN[0], ORIGIN[1])
     draw_square(pen, BOARD_SIZE)
 
